@@ -2,7 +2,7 @@
   "name": "landing-venta",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -17,14 +17,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/JuaniLavenia/landing-propuesta/issues"
   },
   "homepage": "https://github.com/JuaniLavenia/landing-propuesta#readme",
   "dependencies": {
-    "@astrojs/tailwind": "^6.0.2",
-    "astro": "^6.2.2",
+    "@astrojs/tailwind": "^5.1.5",
+    "astro": "^5.18.1",
     "tailwindcss": "^3.4.19"
   }
 }
