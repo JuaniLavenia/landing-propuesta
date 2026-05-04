@@ -1,0 +1,10 @@
+{
+  "name": "landing-venta",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build required for static HTML'",
+    "start": "npx serve . -l 3000"
+  }
+}
