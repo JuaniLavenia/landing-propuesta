@@ -4,9 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        orange: { 50: '#fff7ed', 100: '#ffedd5', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' },
-        dark: '#1a1a2e'
-      }
+        // Codbyte palette. 100 and 700 are derived from Brilliant Azure:
+        // 100 for soft backgrounds, 700 for small text (5.9:1 on white; 600 is only 3.8:1).
+        brand: {
+          50: '#f0f2f9', // Ghost White
+          100: '#e1f0fd',
+          400: '#04b4ed', // Bright Sky (decorative / on dark backgrounds only)
+          500: '#0184ec',
+          600: '#0184ec', // Brilliant Azure
+          700: '#0165b8',
+        },
+        alabaster: '#d4dbdc', // Alabaster Grey
+        dark: '#494849', // Charcoal
+      },
     },
   },
   plugins: [],

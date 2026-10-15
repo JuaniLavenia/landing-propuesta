@@ -32,12 +32,12 @@ const projects = [
     </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
       {projects.map((project) => (
-        <article class="rounded-2xl border border-gray-200 p-8 flex flex-col">
-          <span class="self-start text-xs font-semibold uppercase tracking-wide bg-orange-100 text-orange-700 px-3 py-1 rounded-full mb-4">{project.kind}</span>
+        <article class="rounded-2xl border border-alabaster p-8 flex flex-col">
+          <span class="self-start text-xs font-semibold uppercase tracking-wide bg-brand-100 text-brand-700 px-3 py-1 rounded-full mb-4">{project.kind}</span>
           <h3 class="text-xl font-bold mb-2">{project.title}</h3>
           <p class="text-gray-600 mb-6">{project.description}</p>
           {project.href ? (
-            <a href={project.href} target={project.href.startsWith('http') ? '_blank' : undefined} rel={project.href.startsWith('http') ? 'noopener' : undefined} class="mt-auto self-start bg-orange-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-orange-700 transition">{project.cta}</a>
+            <a href={project.href} target={project.href.startsWith('http') ? '_blank' : undefined} rel={project.href.startsWith('http') ? 'noopener' : undefined} class="mt-auto self-start bg-brand-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-brand-700 transition">{project.cta}</a>
           ) : (
             <span class="mt-auto self-start text-gray-500 text-sm">Próximamente online</span>
           )}
