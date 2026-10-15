@@ -1,46 +1,48 @@
-# Landing Page de Ventas
+# Codbyte — Landing
 
-Landing page estática para vender el servicio de digitalización de negocios locales.
+Landing de Codbyte (digitalización de negocios locales en San Miguel de Tucumán) y demos para mostrar a clientes.
 
-## Estructura
+## Stack
 
-```
-landing-venta/
-├── index.html      # Landing page completa
-├── package.json    # Configuración minimal
-└── README.md       # Este archivo
-```
+- Astro 5 + Tailwind CSS 3 (sitio estático)
+- Formspree para el formulario de contacto
+- Google Sheets como fuente de datos de los catálogos demo
 
-## Deploy a Vercel
-
-### Opción 1: CLI de Vercel (recomendado)
+## Desarrollo
 
 ```bash
-# En la carpeta landing-venta:
-cd landing-venta
-npx vercel
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # genera dist/
 ```
 
-Te va a pedir login y te da una URL типа `landing-venta-xxxx.vercel.app`.
+## Datos de contacto
 
-### Opción 2: Desde la web
+Todo está centralizado en `src/config/site.ts` (nombre, WhatsApp, endpoint de Formspree).
+**Antes de publicar, reemplazá el número de WhatsApp de ejemplo.**
 
-1. Ir a https://vercel.com
-2. "New Project"
-3. Importar este repositorio o subir los archivos directamente
-4. Listo!
+## Demos
 
-## Personalización
+| Ruta | Descripción |
+| --- | --- |
+| `/demos/visual-detailing` | Catálogo de Visual Detailing (paquete Básico). Variable: `VISUAL_DETAILING_SHEET_URL` |
+| `/demos/dulcemood` | Carta de la pastelería DulceMood (paquete Básico). Variable: `DULCEMOOD_SHEET_URL` |
 
-### Cambiar datos de contacto
-En `index.html`, buscar y reemplazar:
-- `https://wa.me/5491112345678` → tu número de WhatsApp
-- formspree endpoint → tu endpoint de Formspree o usar otro servicio
+### Conectar una demo a Google Sheets
 
-### Cambiar textos
-Editar directamente el HTML, todos los textos están ahí.
+1. Creá una planilla con estas columnas en la primera fila:
+   `nombre, marca, categoria, precio, stock, imagen, descripcion`
+2. Archivo → Compartir → Publicar en la web → elegí la hoja y el formato **CSV** → Publicar.
+3. Copiá la URL y cargala como variable de entorno del build:
 
-## Tecnologías usadas
-- Tailwind CSS via CDN (sin build)
-- HTML semántico
-- Responsive (funciona en móvil)
+```bash
+VISUAL_DETAILING_SHEET_URL="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
+```
+
+Si la variable no está o la planilla no responde, el build usa los datos de ejemplo de `src/data/<demo>.csv`.
+
+Los datos se leen **en el build**: un cambio en la planilla aparece en el sitio después del próximo deploy. Para automatizarlo, programá un deploy hook (por ejemplo, cada hora).
+
+- `imagen`: URL pública de la foto (opcional; sin foto se muestra la marca).
+- `stock`: `0` muestra "Sin stock" ("Por encargo" en DulceMood) y de `1` a `3` muestra "Últimas unidades" ("Quedan pocas").
+- `marca`: opcional (DulceMood la deja vacía).

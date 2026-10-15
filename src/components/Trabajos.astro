@@ -1,0 +1,48 @@
+---
+// Trabajos - Portfolio: real projects and live demos
+const projects = [
+  {
+    title: 'DulceMood: pastelería',
+    kind: 'Paquete Básico',
+    description: 'Carta de cookies, budines y cuadraditos con pedidos por WhatsApp. Los productos del día se cargan desde una planilla.',
+    href: '/demos/dulcemood',
+    cta: 'Ver demo',
+  },
+  {
+    title: 'Visual Detailing: catálogo',
+    kind: 'Paquete Básico',
+    description: 'Catálogo con buscador, filtros por categoría, stock y consultas por WhatsApp. El dueño lo actualiza desde una planilla de Google.',
+    href: '/demos/visual-detailing',
+    cta: 'Ver demo',
+  },
+  {
+    title: 'Visual Detailing: tienda online',
+    kind: 'A medida',
+    description: 'E-commerce completo con carrito, favoritos, pedidos, usuarios y panel de administración.',
+    href: 'https://visual-detailing.netlify.app/',
+    cta: 'Ver sitio',
+  },
+];
+---
+<section id="trabajos" class="py-20 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Trabajos</h2>
+      <p class="text-gray-600">Proyectos reales para negocios de Tucumán.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      {projects.map((project) => (
+        <article class="rounded-2xl border border-gray-200 p-8 flex flex-col">
+          <span class="self-start text-xs font-semibold uppercase tracking-wide bg-orange-100 text-orange-700 px-3 py-1 rounded-full mb-4">{project.kind}</span>
+          <h3 class="text-xl font-bold mb-2">{project.title}</h3>
+          <p class="text-gray-600 mb-6">{project.description}</p>
+          {project.href ? (
+            <a href={project.href} target={project.href.startsWith('http') ? '_blank' : undefined} rel={project.href.startsWith('http') ? 'noopener' : undefined} class="mt-auto self-start bg-orange-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-orange-700 transition">{project.cta}</a>
+          ) : (
+            <span class="mt-auto self-start text-gray-500 text-sm">Próximamente online</span>
+          )}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
