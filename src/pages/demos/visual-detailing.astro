@@ -1,0 +1,132 @@
+---
+// Demo of the standard Codbyte package: static Astro catalog fed by a Google Sheet.
+import { loadCatalog } from '../../lib/sheet';
+import { site, whatsappLink } from '../../config/site';
+import fallbackCsv from '../../data/visual-detailing.csv?raw';
+
+const business = {
+  name: 'Visual Detailing',
+  city: site.city,
+  // Demo inquiries go to Codbyte; a real client gets their own number here.
+  whatsapp: site.whatsapp,
+  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Visual+Detailing+Tucuman',
+};
+
+const products = await loadCatalog(import.meta.env.VISUAL_DETAILING_SHEET_URL, fallbackCsv);
+const categories = [...new Set(products.map((p) => p.category))];
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
+
+const stockLabel = (stock: number) => {
+  if (stock <= 0) return { text: 'Sin stock', className: 'bg-gray-200 text-gray-600' };
+  if (stock <= 3) return { text: 'Últimas unidades', className: 'bg-amber-100 text-amber-800' };
+  return { text: 'En stock', className: 'bg-emerald-100 text-emerald-800' };
+};
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{business.name} | Productos de detailing en {business.city}</title>
+  <meta name="description" content={`Catálogo de productos de detailing automotriz en ${business.city}. Consultá stock y precios por WhatsApp.`}>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/demos/visual-detailing/logo.png">
+</head>
+<body class="bg-[#f5f5f7] text-[#1a1a2e] font-sans">
+  <div class="bg-[#e94560] text-white text-center text-sm px-4 py-2">
+    Demo hecha por <a href="/" class="font-semibold underline">{site.name}</a>: los productos se cargan desde una planilla de Google.
+  </div>
+
+  <header class="bg-[#1a1a2e] text-white">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="/demos/visual-detailing/logo.png" alt={business.name} class="h-10 w-10 rounded-full bg-white object-contain">
+        <span class="text-lg font-bold">{business.name}</span>
+      </div>
+      <a href={whatsappLink(business.whatsapp, `Hola ${business.name}, quería hacer una consulta.`)} class="bg-[#e94560] hover:bg-[#d13a53] px-4 py-2 rounded-full text-sm font-semibold transition">
+        WhatsApp
+      </a>
+    </div>
+  </header>
+
+  <section class="bg-gradient-to-b from-[#1a1a2e] to-[#16213e] text-white">
+    <div class="container mx-auto px-4 py-14 text-center">
+      <h1 class="text-3xl md:text-5xl font-bold mb-4">Todo para el cuidado de tu auto</h1>
+      <p class="text-gray-300 max-w-xl mx-auto">Shampoos, pulidores, ceras y accesorios de las mejores marcas, en {business.city}.</p>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-10">
+    <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between mb-8">
+      <input id="search" type="search" placeholder="Buscar producto o marca..." class="w-full md:w-80 px-4 py-3 rounded-xl border border-gray-300 focus:border-[#e94560] outline-none bg-white">
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
+        <button type="button" data-category="" class="chip px-4 py-2 rounded-full text-sm border border-[#1a1a2e] bg-[#1a1a2e] text-white">Todos</button>
+        {categories.map((category) => (
+          <button type="button" data-category={category} class="chip px-4 py-2 rounded-full text-sm border border-[#1a1a2e]">{category}</button>
+        ))}
+      </div>
+    </div>
+
+    <ul id="catalog" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {products.map((product) => {
+        const stock = stockLabel(product.stock);
+        return (
+          <li
+            class="product bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col"
+            data-category={product.category}
+            data-search={`${product.name} ${product.brand}`.toLowerCase()}
+          >
+            {product.image ? (
+              <img src={product.image} alt={product.name} loading="lazy" class="h-48 w-full object-cover">
+            ) : (
+              <div class="h-48 bg-gradient-to-br from-[#16213e] to-[#0f3460] flex items-center justify-center text-white/80 text-2xl font-bold">
+                {product.brand}
+              </div>
+            )}
+            <div class="p-5 flex flex-col gap-2 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs uppercase tracking-wide text-gray-500">{product.brand} · {product.category}</span>
+                <span class={`text-xs px-2 py-1 rounded-full ${stock.className}`}>{stock.text}</span>
+              </div>
+              <h2 class="font-semibold text-lg">{product.name}</h2>
+              {product.description && <p class="text-sm text-gray-600">{product.description}</p>}
+              <div class="mt-auto pt-4 flex items-center justify-between gap-2">
+                <span class="text-xl font-bold">{formatPrice(product.price)}</span>
+                <a
+                  href={whatsappLink(business.whatsapp, `Hola ${business.name}, quería consultar por: ${product.name}`)}
+                  class="text-sm font-semibold text-[#e94560] hover:underline"
+                >
+                  Consultar
+                </a>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+    <p id="empty" class="hidden text-center text-gray-500 py-10">No encontramos productos con ese filtro.</p>
+  </main>
+
+  <section class="bg-white">
+    <div class="container mx-auto px-4 py-12 text-center">
+      <h2 class="text-2xl font-bold mb-2">Encontranos</h2>
+      <p class="text-gray-600 mb-6">Estamos en {business.city}. Pasá por el local o escribinos.</p>
+      <a href={business.mapsUrl} target="_blank" rel="noopener" class="inline-block border-2 border-[#1a1a2e] px-6 py-3 rounded-full font-semibold hover:bg-[#1a1a2e] hover:text-white transition">
+        Cómo llegar
+      </a>
+    </div>
+  </section>
+
+  <footer class="bg-[#1a1a2e] text-gray-400 text-center text-sm py-6 px-4">
+    © {new Date().getFullYear()} {business.name} · Sitio hecho por <a href="/" class="text-white underline">{site.name}</a>
+  </footer>
+
+  <script>
+    import { initCatalogFilter } from '../../scripts/catalog-filter';
+    initCatalogFilter(['bg-[#1a1a2e]', 'text-white']);
+  </script>
+</body>
+</html>

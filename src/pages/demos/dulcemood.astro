@@ -1,0 +1,122 @@
+---
+// Demo of the standard Codbyte package for a home bakery, fed by a Google Sheet.
+import { loadCatalog } from '../../lib/sheet';
+import { site, whatsappLink } from '../../config/site';
+import fallbackCsv from '../../data/dulcemood.csv?raw';
+
+const business = {
+  name: 'DulceMood',
+  city: site.city,
+  // Demo orders go to Codbyte; a real client gets their own number here.
+  whatsapp: site.whatsapp,
+};
+
+const products = await loadCatalog(import.meta.env.DULCEMOOD_SHEET_URL, fallbackCsv);
+const categories = [...new Set(products.map((p) => p.category))];
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
+
+// A bakery bakes to order, so no stock means "made to order", not "unavailable".
+const availability = (stock: number) => {
+  if (stock <= 0) return { text: 'Por encargo', className: 'bg-[#f3e8ff] text-[#6b21a8]' };
+  if (stock <= 3) return { text: 'Quedan pocas', className: 'bg-amber-100 text-amber-800' };
+  return { text: 'Disponible hoy', className: 'bg-emerald-100 text-emerald-800' };
+};
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{business.name} | Pastelería en {business.city}</title>
+  <meta name="description" content={`Cookies, budines y cuadraditos caseros en ${business.city}. Hacé tu pedido por WhatsApp.`}>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍪</text></svg>">
+</head>
+<body class="bg-[#fdf6f0] text-[#4a2c2a] font-sans">
+  <div class="bg-[#4a2c2a] text-[#fdf6f0] text-center text-sm px-4 py-2">
+    Demo hecha por <a href="/" class="font-semibold underline">{site.name}</a>: la carta se carga desde una planilla de Google.
+  </div>
+
+  <header class="container mx-auto px-4 py-6 flex items-center justify-between gap-4">
+    <span class="font-serif text-2xl font-bold text-[#d94f7c]">{business.name}</span>
+    <a href={whatsappLink(business.whatsapp, `Hola ${business.name}! Quería hacer un pedido.`)} class="bg-[#d94f7c] hover:bg-[#c2416c] text-white px-5 py-2 rounded-full text-sm font-semibold transition">
+      Pedir por WhatsApp
+    </a>
+  </header>
+
+  <section class="container mx-auto px-4 pt-6 pb-12 text-center">
+    <h1 class="font-serif text-4xl md:text-6xl font-bold mb-4">Algo dulce para tu día</h1>
+    <p class="text-lg text-[#7a5550] max-w-xl mx-auto">Cookies, budines y cuadraditos hechos a mano en {business.city}.</p>
+  </section>
+
+  <main class="container mx-auto px-4 pb-16">
+    <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between mb-8">
+      <input id="search" type="search" placeholder="¿Qué se te antoja?" class="w-full md:w-80 px-4 py-3 rounded-full border border-[#e8d5c8] focus:border-[#d94f7c] outline-none bg-white">
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
+        <button type="button" data-category="" class="chip px-4 py-2 rounded-full text-sm border border-[#d94f7c] bg-[#d94f7c] text-white">Todo</button>
+        {categories.map((category) => (
+          <button type="button" data-category={category} class="chip px-4 py-2 rounded-full text-sm border border-[#d94f7c] text-[#d94f7c]">{category}</button>
+        ))}
+      </div>
+    </div>
+
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {products.map((product) => {
+        const status = availability(product.stock);
+        return (
+          <li
+            class="product bg-white rounded-3xl shadow-sm overflow-hidden flex flex-col"
+            data-category={product.category}
+            data-search={`${product.name} ${product.description}`.toLowerCase()}
+          >
+            {product.image ? (
+              <img src={product.image} alt={product.name} loading="lazy" class="h-52 w-full object-cover">
+            ) : (
+              <div class="h-52 bg-gradient-to-br from-[#fbd5e0] to-[#f6e3c6] flex items-center justify-center font-serif text-xl text-[#4a2c2a]/70 px-6 text-center">
+                {product.name}
+              </div>
+            )}
+            <div class="p-6 flex flex-col gap-2 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs uppercase tracking-wide text-[#a07a72]">{product.category}</span>
+                <span class={`text-xs px-2 py-1 rounded-full ${status.className}`}>{status.text}</span>
+              </div>
+              <h2 class="font-serif font-bold text-xl">{product.name}</h2>
+              {product.description && <p class="text-sm text-[#7a5550]">{product.description}</p>}
+              <div class="mt-auto pt-4 flex items-center justify-between gap-2">
+                <span class="text-xl font-bold">{formatPrice(product.price)}</span>
+                <a
+                  href={whatsappLink(business.whatsapp, `Hola ${business.name}! Quería pedir: ${product.name}`)}
+                  class="bg-[#d94f7c] hover:bg-[#c2416c] text-white text-sm font-semibold px-4 py-2 rounded-full transition"
+                >
+                  Pedir
+                </a>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+    <p id="empty" class="hidden text-center text-[#a07a72] py-10">No encontramos nada con ese filtro.</p>
+  </main>
+
+  <section class="bg-[#fbe4ec]">
+    <div class="container mx-auto px-4 py-12 text-center">
+      <h2 class="font-serif text-3xl font-bold mb-2">¿Cómo pedir?</h2>
+      <p class="text-[#7a5550] max-w-xl mx-auto">Elegí tus productos, tocá "Pedir" y coordinamos por WhatsApp el retiro o el envío.</p>
+    </div>
+  </section>
+
+  <footer class="text-center text-sm text-[#a07a72] py-6 px-4">
+    © {new Date().getFullYear()} {business.name} · Sitio hecho por <a href="/" class="text-[#d94f7c] underline">{site.name}</a>
+  </footer>
+
+  <script>
+    import { initCatalogFilter } from '../../scripts/catalog-filter';
+    initCatalogFilter(['bg-[#d94f7c]', 'text-white'], ['text-[#d94f7c]']);
+  </script>
+</body>
+</html>
