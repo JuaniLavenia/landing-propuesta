@@ -1,7 +1,7 @@
 // Single source of truth for Codbyte contact data and brand copy.
 export const site = {
   name: "Codbyte",
-  tagline: "Tu negocio en Google",
+  tagline: "Soluciones Web",
   city: "San Miguel de Tucumán",
   whatsapp: "+5493814159688",
   formspreeEndpoint: "https://formspree.io/f/xpwzgjzp",
